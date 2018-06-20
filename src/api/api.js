@@ -1,15 +1,51 @@
 'use strict';
 
+const debug = require('debug')('api');
+
 import express from 'express';
+
+// The express router replaces our home-built custom router
 const router = express.Router();
 
-import Cats from '../models/cats';
+// modelFinder middleware reads :model in the URLs and susses out the right model to use.
+// As you'll see, it gets jacked on to req.model so that you can reference it in your routes
+import modelFinder from '../middleware/models.js';
+router.param('model', modelFinder);
 
 /**
- * Simple method to send a JSON response (all of the API methods will use this)
- * @param res
- * @param data
+ * Render all records of a model
+ * Note the error handling ....
+ * Typically, you can just throw an error and your error handling middleware will run
+ * In a promise, that doesn't work, but if you call next() with any params, Express
+ * sees that as an error (the presence of a param) and calls your error middleware...
  */
+router.get('/api/v1/:model', (req,res,next) => {
+  debug('get all');
+  req.model.fetchAll()
+    .then(data => sendJSON(res,data))
+    .catch(next);
+});
+
+router.get('/api/v1/:model/:id', (req,res,next) => {
+  req.model.findOne(req.params.id)
+    .then(data => sendJSON(res,data))
+    .catch(next);
+});
+
+router.post('/api/v1/:model', (req,res,next) => {
+  let record = new req.model(req.body);
+  record.save()
+    .then(data => sendJSON(res,data))
+    .catch(next);
+});
+
+router.put('api/v1/:model/:id', (rea,res,next) => {
+  let criteria = req.body;
+  criteria.id = req.params.id;
+  req.model.updateOne(criteria)
+    .then(data => sendJSON(res,data))
+    .catch(next);
+});
 
 let sendJSON = (res,data) => {
   res.statusCode = 200;
@@ -18,65 +54,6 @@ let sendJSON = (res,data) => {
   res.write( JSON.stringify(data) );
   res.end();
 };
-
-let serverError = (res,err) => {
-  let error = { error:err };
-  res.statusCode = 500;
-  res.statusMessage = 'Server Error';
-  res.setHeader('Content-Type', 'application/json');
-  res.write( JSON.stringify(error) );
-  res.end();
-};
-
-router.get('/api/v1/cats', (req,res) => {
-  Cats.fetchAll()
-    .then( data => sendJSON(res,data) )
-    .catch( err => serverError(res,err) );
-});
-
-router.get('/api/v1/cats/:id', (req,res) => {
-  if ( req.params.id ) {
-    Cats.findOne(req.params.id)
-      .then( data => sendJSON(res,data) )
-      .catch( function err(res,err) {
-        res.status = 404;
-        res.statusMessage = 'Not Found';
-        res.setHeader('Content-Type', 'application/json');
-        res.write( JSON.stringify(err) );
-        res.end();
-      } );
-  }
-});
-
-router.delete('/api/v1/cats/:id', (req,res) => {
-  if ( req.params.id ) {
-    Cats.deleteOne(req.params.id)
-      .then( success => {
-        let data = {id:req.params.id,deleted:success};
-        sendJSON(res,data);
-      })
-      .catch( err => serverError(res,err) );
-  }
-});
-
-router.post('/api/v1/cats', (req,res) => {
-  if (req.body) {
-    let record = new Cats(req.body);
-    record.save()
-      .then(data => sendJSON(res,data))
-      .catch( err => serverError(res,err) );
-  }
-  else {
-    (res,err) => {
-      let error = { error:err };
-      res.statusCode = 400;
-      res.statusMessage = 'Bad Request';
-      res.setHeader('Content-Type', 'application/json');
-      res.write( JSON.stringify(error) );
-      res.end();
-    };
-  }
-});
 
 
 export default router;

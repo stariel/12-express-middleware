@@ -34,7 +34,7 @@ let isRunning = false;
 
 let server = null;
 
-export default {
+module.exports = {
   start: (port) => {
     if(! isRunning) {
       server = app.listen(port, (err) => {
