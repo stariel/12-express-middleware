@@ -15,7 +15,7 @@ let app = express();
 // let corsOptions = {
 //   origin: 'http://example.com'
 // };
-app.use(cors();
+app.use(cors());
 
 
 app.use(morgan('dev'));
@@ -34,7 +34,7 @@ let isRunning = false;
 
 let server = null;
 
-module.exports = {
+export default {
   start: (port) => {
     if(! isRunning) {
       server = app.listen(port, (err) => {
@@ -50,8 +50,8 @@ module.exports = {
 
   stop: () => {
 
-      server && server.close();
-      isRunning = false;
-      console.log('Server has been stopped');
+    server && server.close();
+    isRunning = false;
+    console.log('Server has been stopped');
   },
 };

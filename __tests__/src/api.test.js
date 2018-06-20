@@ -13,3 +13,4 @@ describe('Simple Web Server', () => {
   afterAll( () => {
     app.stop();
   });
+});
