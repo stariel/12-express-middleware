@@ -39,7 +39,7 @@ router.post('/api/v1/:model', (req,res,next) => {
     .catch(next);
 });
 
-router.put('api/v1/:model/:id', (rea,res,next) => {
+router.put('api/v1/:model/:id', (req,res,next) => {
   let criteria = req.body;
   criteria.id = req.params.id;
   req.model.updateOne(criteria)

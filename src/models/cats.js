@@ -24,7 +24,7 @@ class Cat{
   }
 
   static updateOne(criteria) {
-    return storage.update(this);
+    return storage.save(criteria);
   }
 
   static deleteOne(id) {
