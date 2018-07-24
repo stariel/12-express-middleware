@@ -29,6 +29,15 @@ describe('Express Web Server', () => {
       .catch(console.err);
   });
 
+  it('handles a valid get request for dogs', () => {
+
+    return mockRequest.get('/api/v1/dogs')
+      .then(response => {
+        expect(response.statusCode).toEqual(200);
+      })
+      .catch(console.err);
+  });
+
   it('on POST should respond with bad request if no request body was provided', () => {
     return mockRequest.post('/api/v1/cats')
       .catch(response => {
@@ -53,6 +62,16 @@ describe('Express Web Server', () => {
       .send(obj)
       .then(response => {
         expect(response.text).toContain('Bob');
+      })
+      .catch(console.err);
+  });
+
+  it('should respond with the body content for a post request with a valid body for dogs', () => {
+    let obj = {name:'Bandit', age: '3'};
+    return mockRequest.post('/api/v1/dogs')
+      .send(obj)
+      .then(response => {
+        expect(response.text).toContain('Bandit');
       })
       .catch(console.err);
   });
