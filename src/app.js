@@ -1,7 +1,7 @@
 'use strict';
 
 // Debug Utility (needs to be required in the old node way)
-const debug = require('debug')('app');
+// const debug = require('debug')('app');
 
 import express from 'express';
 import morgan from 'morgan';
