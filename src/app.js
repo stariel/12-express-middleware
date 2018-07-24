@@ -32,26 +32,27 @@ app.use(errorHandler);
 
 let isRunning = false;
 
-let server = null;
-
 module.exports = {
   start: (port) => {
     if(! isRunning) {
-      server = app.listen(port, (err) => {
+      app.listen(port, (err) => {
         if(err) { throw err; }
+        // Tick the running flag
         isRunning = true;
-        debug('Server is up on port', port);
+        console.log('Server is up on port', port);
       });
     }
     else {
-      debug('Server is already running');
+      console.log('Server is already running');
     }
   },
 
   stop: () => {
-
-    server && server.close();
-    isRunning = false;
-    console.log('Server has been stopped');
+    app.close( () => {
+      isRunning = false;
+      console.log('Server has been stopped');
+    });
   },
+
+  server:app,
 };
